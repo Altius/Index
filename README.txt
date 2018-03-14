@@ -1,11 +1,6 @@
-##########################################################################################################
-#                                                                                                        #
-# Method for generating a master list / Index of DNaseI hypersensitivity sites.                          #
-# All code, implementation details and design by Wouter Meuleman and Eric Rynes.                         #
-#                                                                                                        #
-# Version: WM20180313                                                                                    #
-#                                                                                                        #
-##########################################################################################################
+# Method for generating a master list / Index of DNaseI hypersensitivity sites.
+# All code, implementation details and design by Wouter Meuleman and Eric Rynes.
+#####################################################################################################
 
 ### How to run:
 
@@ -27,7 +22,7 @@ sbatch --array=1-5000 ML_matrix_slurm.sh
 ## Optional: Generate the final concatenated versions.
 ./code_construct_matrix.sh <ID/DATE>
 
-##########################################################################################################
+#####################################################################################################
 
 ### Files of interest:
 
