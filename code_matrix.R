@@ -7,7 +7,7 @@
 #                                                                                                        #
 ##########################################################################################################
 
-source("../../code/general.R")
+source("general.R")
 library(caTools)
 library(Matrix)
 source("code_ML.R")
