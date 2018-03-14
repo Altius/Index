@@ -41,17 +41,4 @@ ML_matrix_slurm.sh
 
 ##########################################################################################################
 
-### Misc notes:
-
-For naming DHSs, I adapted this from Eric Haugen:
- /home/ehaugen/work/encode3/naming/src/run_name_master_list.sh input_file.txt
-
-## Check to see if number of accounted peaks is the same (it is!):
-
-[meuleman@sched0 WM20180220_detailed_ML_analysis]$ cat peaks_all/chunk*| wc -l
-68698924
-[meuleman@sched0 WM20180220_detailed_ML_analysis]$ cat peaks_nonovl_any/chunk*| wc -l
-68698924
-
-
 
