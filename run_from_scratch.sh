@@ -12,7 +12,7 @@ OUTDIR=$2
 CHROM_FILTER=$3
 MAPPABLE_REGIONS=$4
 
-if [ -n "$5" ]; then
+if [ $# = 5 ]; then
   MIN_VARWIDTH_PEAK_WIDTH=$5
 else
   MIN_VARWIDTH_PEAK_WIDTH="20"
@@ -38,7 +38,7 @@ mkdir -p "$OUTDIR"
 #CHROM_FILTER=/home/erynes/topics/ENCODEpaper2017/chromLengths_GRCh38_only1-22XY.bed3
 CALL_THRESHOLD=1.0 # write all sites to disk, including sites with FDR = 1
 HOTSPOT_FDR_THRESHOLD=0.0010 # 0.1% (not 1%)
-CENTER_SITES=$(mktemp)
+CENTER_SITES="$OUTDIR/centersites.starch"
 
 function exe_check(){
   for exe in "$@"; do
@@ -56,7 +56,10 @@ EXTRACT=$(which extractCenterSites.sh)
 exe_check "$HOTSPOT2" "$EXTRACT"
 
 # Create center sites
+echo "Creating center sites"
 "$EXTRACT" -c "$CHROM_FILTER" -o "$CENTER_SITES"
+
+ls -l "$CENTER_SITES"
 
 
 # Run hotspot2.sh
@@ -107,4 +110,4 @@ OUTFILE=allPeaks.starch
 }
 
 # Run the masterlist stuff
-./run_sequential.sh
+./run_sequential.sh "$OUTDIR" "$OUTDIR"
