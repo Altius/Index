@@ -1,5 +1,6 @@
 Method for generating a master list / Index of DNaseI hypersensitivity sites.
-All code, implementation details and design by Wouter Meuleman and Eric Rynes.
+
+All code, implementation details and design by Wouter Meuleman and Eric Rynes. Docker implementation by Jemma Nelson.
 
 ## How to run within Docker:
 This approach is not recommended, as it will execute command serially, which will take an enormous amount of time for any real-life dataset.
