@@ -3,42 +3,31 @@ All code, implementation details and design by Wouter Meuleman and Eric Rynes.
 
 # How to run:
 
-## Generates chunked versions of the master list, for each of ~5000 chunks (run in parallel)
-`sbatch --array=1-5000 ML_build_slurm.sh`
+##1. Generates chunked versions of the master list, for each of ~5000 chunks (run in parallel)
+`sbatch ML_build_slurm.sh`
 wait for jobs to finish
 
-## Resolves overlaps for alternative master list versions where no overlap is required
-`sbatch --array=1-5000 ML_overlap_slurm.sh`
+##2. Resolves overlaps for alternative master list versions where no overlap is required
+`sbatch ML_overlap_slurm.sh`
 wait for jobs to finish
 
-## Generates the final concatenated versions, as well as browser tracks
-`./code_gen_masterlist.sh <ID/DATE>`
+##3. Generates the final concatenated versions, as well as browser tracks
+`./code_gen_masterlist.sh <ID/DATE> <numchunks>`
 ID/DATE will be the name of the masterlist -- the latest I generated is called 'WM20180313'
-
-## Optional: generate presence/absence and signal matrices for the three versions of the master list chunks
-`sbatch --array=1-5000 ML_matrix_slurm.sh`
-wait for jobs to finish
-## Optional: Generate the final concatenated versions.
-`./code_construct_matrix.sh <ID/DATE>`
-
+numchunks is the number of genomic chunks that was used to process the R code in parallel.
 
 # Files of interest:
 
 ```
-code_ML.R
+code_ML.R | common routines
 
-ML_build_slurm.sh
-code_build.R
+code_build.R | code used for converting a genomic chunk of peak calls into tentative DHSs
+ML_build_slurm.sh | SLURM submission script
 
-ML_overlap_slurm.sh
-code_overlap.R
-code_gen_masterlist.sh
+code_overlap.R | code used to detect and resolve overlapping elements, if so desired
+ML_overlap_slurm.sh | SLURM submission script
 
-ML_matrix_slurm.sh
-code_matrix.R
-code_construct_matrix.sh
-
-code_compare_masterlists.sh
+code_gen_masterlist.sh | code used to concatenate the output of all chunks and generate browser tracks
 ```
 
 
