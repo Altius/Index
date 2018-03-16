@@ -32,23 +32,22 @@ for TYPE in ${TYPES}; do
     echo "Concatenating DHS chunks"
     cat "DHSs_${TYPE}"/* | sort-bed - > "${FILE_CHUNKIDS}"
   fi
-
-  ### Generate label mapping
-  # if ! [[ -f "masterlist_DHSs_${NAME}_all_chunkIDs2indexIDs.txt" && ${TYPE} == "all" ]] ; then
-  #   echo "Generating unique DHS identifiers"
-  #   ./run_name_master_list.sh "${FILE_CHUNKIDS}" "$CHROM_FILE"
-  # fi
-
-  # ### Apply mapping
-  # if ! [[ -f "$FILE_INDEXIDS" ]] ; then
-  #   echo "Mapping chunk identifiers to final DHS identifiers"
-  #   awk 'BEGIN{ FS = OFS = "\t" }
-  #     FNR == NR { split($0, f, /\t/); map[f[2]] = f[1]; next }
-  #     { if ($4 in map) { $4 = map[$4] } }
-  #     { print }' "masterlist_DHSs_${NAME}_all_chunkIDs2indexIDs.txt" "${FILE_CHUNKIDS}" > "${FILE_INDEXIDS}"
-  # fi
-
-  FILE_INDEXIDS=$FILE_CHUNKIDS
+  
+  #### Generate label mapping
+  #if ! [[ -f "masterlist_DHSs_${NAME}_all_chunkIDs2indexIDs.txt" && ${TYPE}=="all" ]] ; then
+  #  echo "Generating unique DHS identifiers"
+  #  ./run_name_master_list.sh ${FILE_CHUNKIDS};
+  #fi
+  #
+  #### Apply mapping
+  #if ! [[ -f "$FILE_INDEXIDS" ]] ; then
+  #  echo "Mapping chunk identifiers to final DHS identifiers"
+  #  awk 'BEGIN{ FS = OFS = "\t" }
+  #    FNR == NR { split($0, f, /\t/); map[f[2]] = f[1]; next } 
+  #    { if ($4 in map) { $4 = map[$4] } } 
+  #    { print }' masterlist_DHSs_${NAME}_all_chunkIDs2indexIDs.txt ${FILE_CHUNKIDS} > ${FILE_INDEXIDS}
+  #fi
+  FILE_INDEXIDS=${FILE_CHUNKIDS}
 
   ### Create browser loadable BED12 files
   if ! [[ -f "$FILE_BED" ]] ; then
