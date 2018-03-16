@@ -33,14 +33,11 @@ wait for jobs to finish
 | File | Purpose |
 | --- | --- |
 | `code_ML.R` | common routines |
-| --- | --- |
 | `code_build.R` | code used for converting a genomic chunk of peak calls into tentative DHSs |
-| `ML_build_slurm.sh` | SLURM submission script |
-| --- | --- |
+| `ML_build_slurm.sh` | SLURM submission script for `code_build.R` |
 | `code_overlap.R` | code used to detect and resolve overlapping elements, if so desired |
-| `ML_overlap_slurm.sh` | SLURM submission script |
-| --- | --- |
+| `ML_overlap_slurm.sh` | SLURM submission script for `code_overlap.R` |
 | `code_gen_masterlist.sh` | code used to concatenate the output of all chunks and generate browser tracks |
-| --- | --- |
+
 
 
