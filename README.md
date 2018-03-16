@@ -28,6 +28,13 @@ wait for jobs to finish
 
 `numchunks` is the number of genomic chunks that was used to process the R code in parallel.
 
+## Prerequisites:
+
+This code depends on the availability of individual "chunk" files, each containing hotspot2 peak calls for a subset of the genome, across all samples of interest.
+Starting from hotspot2, the following steps need to be taken to obtain these:
+
+TODO Eric Rynes
+
 ## Files of interest:
 
 | File | Purpose |
