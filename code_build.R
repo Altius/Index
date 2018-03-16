@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 ##########################################################################################################
 #                                                                                                        #
 # Method for generating a master list / Index of DNaseI hypersensitivity sites.                          #
@@ -7,7 +8,6 @@
 #                                                                                                        #
 ##########################################################################################################
 
-source("../../code/general.R")
 library(caTools)
 source("code_ML.R")
 
@@ -18,6 +18,7 @@ if (length(args)==0) {
   stop("No arguments supplied.")
 } else {
   eval(parse(text=args[[1]])) # parse first argument: chunknum
+  filepath <- args[[2]] # parse second argument: filepath
 }
 
 chunk <- paste("chunk", sprintf("%04d", chunknum), ".bed", sep="");
@@ -31,20 +32,13 @@ options(warn=2)
 
 ## Example line:
 # chr11   52983767        52983861        id-708944       0.0622013       52983811        LN4866  52983810
-#FILEPATH=paste("/net/seq/data/projects/ENCODE3_publications/erynes/ENCODEpaper2017/SubsetOf644/masterLists/",
-#               "FDR0.0010/outdir_MLfromPeakClumps_1g_MA21_DHSwidthThreshold20bp/chunks_10kb_corrected/", sep="/");
-#chunks <- dir(FILEPATH, pattern="^chunk.*.txt");
-
-#FILEPATH="/net/seq/data/projects/ENCODE3_publications/erynes/ENCODEpaper2017/SubsetOf665/varWidthPeaks/chunks_5kb_min500elementsPerChunk/";
-FILEPATH="/net/seq/data/projects/ENCODE3_publications/erynes/ENCODEpaper2017/SubsetOf665/varWidthPeaks/chunks_10kb_min500elementsPerChunk/";
-#chunks <- dir(FILEPATH, pattern="^chunk.*.bed");
 
 dir.create("DHSs_all", showWarnings=FALSE, recursive=TRUE)
 dir.create("peaks_all", showWarnings=FALSE, recursive=TRUE)
 
 #for (chunk in chunks) {
   # Load in data per chunk, each separated by at least 10kb
-  peaks <- read.delim(paste(FILEPATH, chunk, sep="/"), header=FALSE, as.is=T)
+  peaks <- read.delim(filepath, header=FALSE, as.is=T)
   #colnames(peaks) <- c("seqname", "start", "end", "ID", "score", "density_summit", "sampleID", "wavelet_summit")
   colnames(peaks) <- c("seqname", "start", "end", "sampleID", "score", "density_summit", "wavelet_summit")
   peaks <- peaks[order(peaks$wavelet_summit),] # Order peaks by wavelet summit first
