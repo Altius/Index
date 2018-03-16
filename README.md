@@ -1,22 +1,28 @@
 Method for generating a master list / Index of DNaseI hypersensitivity sites.
 All code, implementation details and design by Wouter Meuleman and Eric Rynes.
 
-# How to run:
+## How to run within Docker:
+This approach is not recommended, as it will execute command serially, which will take an enormous amount of time for any real-life dataset.
 
-##1. Generates chunked versions of the master list, for each of ~5000 chunks (run in parallel)
+1. Run the Docker script
+`./run_from_scratch.sh`
+
+## How to run with SLURM:
+
+1. Generates chunked versions of the master list, for each of ~5000 chunks (run in parallel)
 `sbatch ML_build_slurm.sh`
 wait for jobs to finish
 
-##2. Resolves overlaps for alternative master list versions where no overlap is required
+2. Resolves overlaps for alternative master list versions where no overlap is required
 `sbatch ML_overlap_slurm.sh`
 wait for jobs to finish
 
-##3. Generates the final concatenated versions, as well as browser tracks
+3. Generates the final concatenated versions, as well as browser tracks
 `./code_gen_masterlist.sh <ID/DATE> <numchunks>`
 ID/DATE will be the name of the masterlist -- the latest I generated is called 'WM20180313'
 numchunks is the number of genomic chunks that was used to process the R code in parallel.
 
-# Files of interest:
+## Files of interest:
 
 ```
 code_ML.R | common routines
