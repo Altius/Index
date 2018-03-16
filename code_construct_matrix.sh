@@ -8,8 +8,9 @@
 #                                                                                                        #
 ##########################################################################################################
 
+set -e -o pipefail
 
-if [[ $# -le 2 ]] ; then
+if [[ $# -lt 2 ]] ; then
     echo 'Provide the name/version of the file, e.g. WM20180301, and the number of chunks'
     exit 1
 fi
