@@ -1,7 +1,10 @@
 #!/bin/bash
 
+set -e -o pipefail
+
 dir=$1
-outname=${2:-masterlist}
+chrom_file=$2
+outname=${3:-masterlist}
 
 outdir=Rout
 mkdir -p "$outdir"
@@ -12,20 +15,28 @@ i=1
 for chunkfile in "$dir"/chunk*.bed ; do
     R CMD BATCH \
         --no-save --no-restore \
-        "--args chunknum=$i filepath=$chunkfile" \
+        "--args chunknum=$i $chunkfile" \
         ./code_build.R \
         "$outdir/output_build_chunk_$i.Rout"
-    (i++)
+    ((i++))
 done
 
 # Do something else
 for i in $(seq 1 "$numchunks") ; do
     R CMD BATCH --no-save --no-restore "--args chunknum=${i}" \
-        code_overlap.R "Rout/output_overlap_chunk_${i}.Rout"
+        ./code_overlap.R "$outdir/output_overlap_chunk_${i}.Rout"
 done
 
 # Generate masterlist
-./code_gen_masterlist.sh "$outname"
+./code_gen_masterlist.sh "$(basename "$outname")" "$chrom_file"
 
+# Copy output files out of the container
+cp -r \
+    DHS* \
+    Rout \
+    masterlist_DHSs* \
+    peaks_* \
+    "$dir"
 # Make a matrix
-./code_construct_matrix.sh "$outname" "$numchunks"
+# TODO: This comes later
+# ./code_construct_matrix.sh "$(basename "$outname")" "$numchunks"
