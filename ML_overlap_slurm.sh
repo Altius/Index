@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ML_overlap.%a
 #SBATCH -n 1                       # Number of cores
+#SBATCH --array=1-5000
 #SBATCH --error=error/ML_overlap.%a.txt
 #SBATCH --output=out/ML_overlap.%a.txt
 
