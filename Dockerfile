@@ -15,6 +15,7 @@ RUN wget https://github.com/ENCODE-DCC/kentUtils/archive/v302.0.0.tar.gz \
       && sed -i 's/fof.o //' src/lib/makefile \
       && make
 
+# Build masterlist container
 FROM alpine:3.7
 RUN apk add --no-cache \
   bash \
@@ -30,9 +31,6 @@ RUN wget -O - https://github.com/bedops/bedops/releases/download/v2.4.31/bedops_
 # Copy kentutils in
 COPY --from=kentutils-build /kentUtils-302.0.0/bin/bedToBigBed /usr/local/bin/
 
-
-
 ENV PATH=/masterlist:$PATH
 ADD . /masterlist/
-
 WORKDIR /data
