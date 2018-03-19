@@ -17,7 +17,10 @@ if (length(args)==0) {
   stop("No arguments supplied.")
 } else {
   eval(parse(text=args[[1]])) # parse first argument: chunknum
+  eval(parse(text=args[[2]])) # parse second argument: workdir
 }
+
+setwd(workdir)
 
 chunk <- paste("chunk", sprintf("%04d", chunknum), ".bed", sep="");
 print(chunk)
