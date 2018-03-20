@@ -82,7 +82,3 @@ cd "$dir"
 
 # Generate masterlist
 "$here"/code_gen_masterlist.sh "$(basename "$outname")" "$chrom_file" .
-
-# Make a matrix
-# TODO: This comes later
-# ./code_construct_matrix.sh "$(basename "$outname")" "$numchunks"
