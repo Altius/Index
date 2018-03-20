@@ -61,8 +61,9 @@ cd "$here"
 for chunkfile in "$dir"/chunk*.bed ; do
     Rscript "$here"/code_build.R \
         chunknum=$i \
-        filepath="'$chunkfile'" \
+        filepath="'$dir'" \
         workdir="'$dir'" \
+        sourcedir="'$here'" \
         > "$rout_dir/output_build_chunk_$i.Rout" \
         2>&1
     ((i++))
@@ -73,13 +74,14 @@ for i in $(seq 1 "$numchunks") ; do
     Rscript "$here"/code_overlap.R \
         chunknum="$i" \
         workdir="'$dir'" \
+        sourcedir="'$here'" \
         > "$rout_dir/output_overlap_chunk_$i.Rout" \
         2>&1
 done
 cd "$dir"
 
 # Generate masterlist
-"$here"/code_gen_masterlist.sh "$(basename "$outname")" "$chrom_file"
+"$here"/code_gen_masterlist.sh "$(basename "$outname")" "$chrom_file" .
 
 # Make a matrix
 # TODO: This comes later
