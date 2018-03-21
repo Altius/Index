@@ -117,6 +117,6 @@ for TYPE in ${TYPES}; do
   fi
 
   echo "Load this track in the UCSC browser using the following:"
-  echo "track type=bigBed name=master_list_${NAME}_${TYPE} useScore=1 visibility=2 itemRgb='On' bigDataUrl=https://encode:collabor8@resources.altius.org/~meuleman/ML_tracks/${FILE_BIGBED}"
+  echo "track type=bigBed name=master_list_${NAME}_${TYPE} useScore=1 visibility=2 itemRgb='On' bigDataUrl=https://[username:password@URL]/${FILE_BIGBED}"
 
 done
