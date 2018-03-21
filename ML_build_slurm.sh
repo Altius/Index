@@ -11,7 +11,7 @@
 
 usage () {
     echo -e "Usage:  $0 output_dir outputID chromSizes.bed fileOfPeakfileNames.txt partitionName memSize"
-    echo -e "where output_dir is where all output and messages will be written,"
+    echo -e "where output_dir is where all messages and intermediate output will be written,"
     echo -e "outputID is a \"version ID\" to be used in the output filenames (e.g. containing the date and number of samples),"
     echo -e "chromSizes.bed is a 3-column 0-based BED file containing the lengths of the relevant chromosomes,"
     echo -e "and fileOfPeakfileNames.txt contains paths to variable-width peak files, one file / biological sample"
@@ -19,6 +19,7 @@ usage () {
     echo -e "output_dir will be created if it does not already exist."
     echo -e "partitionName is the name of the cluster on which the SLURM jobs will run (--partition=partitionName),"
     echo -e "and memSize is the amount of memory to require for collating the files in fileOfPeakfileNames.txt (--mem=memSize)."
+    echo -e "Output files will be written to the directory from which the script is invoked, i.e. the current directory."
     exit 2
 }
 
