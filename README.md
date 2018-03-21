@@ -40,7 +40,7 @@ multiple directories and symbolic links can be used in this case.
 
 All peak files must have been generated using the same FDR threshold.
 After hotspot2 has generated per-base results for a biosample up to a given FDR threshold (e.g. 5% or 100%), hotspots and peaks
-at any stricter FDR threshold of interest can be extracted from the results by a pair of scripts that are part of the `hotspot2` package.
+at any stricter FDR threshold of interest can be extracted from the results by a pair of scripts contained in the `hotspot2` package.
 The per-base results reside in a file whose name ends in `allcalls.starch`.  To obtain variable-width peaks at a desired FDR threshold,
 this file, and the hotspot2 output files containing mapped cleavages (name ending in `cutcounts.starch`)
 and the total number of mapped cleavages (name ending in `cleavage.total`) are needed.
@@ -51,7 +51,7 @@ For each sample, you would need to run the following two `hotspot2` scripts, the
 
 `hsmerge.sh -f 0.001 sampXYZ.allcalls.starch sampXYZ.hotspots.fdr0.001.starch`
 
-`density-peaks.bash tmpdirXYZ varWidth_20_XYZ sampXYZ.cutcounts.starch sampXYZ.hotspots.fdr0.001.starch chromSizes.bed sampXYZ.density.starch sampXYZ.peaks.starch \`cat sampXYZ.cleavage.total\``
+``density-peaks.bash tmpdirXYZ varWidth_20_XYZ sampXYZ.cutcounts.starch sampXYZ.hotspots.fdr0.001.starch chromSizes.bed sampXYZ.density.starch sampXYZ.peaks.starch `cat sampXYZ.cleavage.total` ``
 
 The first script, `hsmerge.sh`, uses `sampXYZ.allcalls.starch` to call hotspots at FDR 0.1% and write them to `samp.XYZ.hotspots.fdr0.001.starch`.
 The second script, `density-peaks.bash`, uses the newly-created FDR 0.1% hotspot file, and pre-existing files `sampXYZ.cutcounts.starch` and
