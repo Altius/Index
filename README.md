@@ -13,41 +13,32 @@ This approach is not recommended, as it will execute command serially, which wil
 
 ## How to run with SLURM:
 
-1. Generates chunked versions of the master list, for each of ~5000 chunks (run in parallel)
+From any directory, execute
 
-`sbatch ML_build_slurm.sh`
-wait for jobs to finish
+`[path to]ML_build_slurm.sh workdir outputID chrom_sizes.bed listOfFiles.txt partitionName memSize`
 
-2. Resolves overlaps for alternative master list versions where no overlap is required
+where
 
-`sbatch ML_overlap_slurm.sh`
-wait for jobs to finish
+* messages and intermediate files will be written into `workdir` (it will be created if it doesn't already exist)
+* `outputID` is an identifier to be used in the output filenames (e.g., containing the date, number of samples, organism, etc.)
+* `chrom_sizes.bed` is a 0-based 3-column BED file containing the lengths of the relevant chromosomes
+* `listOfFiles.txt` is a plain text file containing the paths to variable-width peak files, one per biological sample, one path per line
+* `partitionName` is the name of the cluster on which the SLURM jobs will run (`--partition=partitionName`)
+* `memSize` is the amount of memory to require for each step, best if tailored to the needs of the collation of peak files (`--mem=memSize`)
 
-3. Generates the final concatenated versions, as well as browser tracks
-
-`./code_gen_masterlist.sh <ID/DATE> <numchunks>`
-
-`ID/DATE` will be the name of the masterlist -- the latest I generated is called 'WM20180313'.
-
-`numchunks` is the number of genomic chunks that was used to process the R code in parallel.
-
-## Prerequisites:
-
-This code depends on the availability of individual "chunk" files, each containing hotspot2 peak calls for a subset of the genome, across all samples of interest.
-Starting from hotspot2, the following steps need to be taken to obtain these:
-
-TODO Eric Rynes
+Output files will be written to the current directory.  Messages and intermediate files will be written into `workdir`.
 
 ## Files of interest:
 
 | File | Purpose |
 | --- | --- |
+| `chunk_bed.awk` | script for partitioning the peaks into genomic islands or "chunks" that can be processed in parallel |
 | `code_ML.R` | common routines |
 | `code_build.R` | code used for converting a genomic chunk of peak calls into tentative DHSs |
-| `ML_build_slurm.sh` | SLURM submission script for `code_build.R` |
 | `code_overlap.R` | code used to detect and resolve overlapping elements, if so desired |
-| `ML_overlap_slurm.sh` | SLURM submission script for `code_overlap.R` |
 | `code_gen_masterlist.sh` | code used to concatenate the output of all chunks and generate browser tracks |
+| `ML_build_slurm.sh` | SLURM submission script which executes each of the above in sequence |
+
 
 
 

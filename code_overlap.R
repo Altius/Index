@@ -8,7 +8,7 @@
 ##########################################################################################################
 
 library(caTools)
-source("code_ML.R")
+#source("code_ML.R")
 
 ######################################################################################################################################
 
@@ -18,9 +18,12 @@ if (length(args)==0) {
 } else {
   eval(parse(text=args[[1]])) # parse first argument: chunknum
   eval(parse(text=args[[2]])) # parse second argument: workdir
+  eval(parse(text=args[[3]])) # parse third argument: sourcedir
 }
 
 setwd(workdir)
+
+source(paste(sourcedir,"code_ML.R",sep="/"))
 
 chunk <- paste("chunk", sprintf("%04d", chunknum), ".bed", sep="");
 print(chunk)

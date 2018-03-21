@@ -10,13 +10,17 @@
 
 set -e -o pipefail
 
-if [[ $# -eq 0 ]] ; then
-    echo 'Provide the name/version of the file, e.g. WM20180301'
+if [[ $# != 3 ]] ; then
+    echo -e "Usage:  $0 versionID chromSizes.bed workdir"
+    echo -e "where \"versionID\" is an ID to use within the output filenames (e.g., containing date, sample info),"
+    echo -e "chromSizes.bed is a 0-based 3-column BED file containing the lengths of the relevant chromosomes,"
+    echo -e "and \"workdir\" contains the input files and directories."
     exit 1
 fi
 
 NAME=$1;
 CHROM_FILE=$2
+workdir=$3
 
 TYPES="all nonovl_any nonovl_core";
 for TYPE in ${TYPES}; do
@@ -30,7 +34,7 @@ for TYPE in ${TYPES}; do
   ### Create final master list
   if ! [[ -f "$FILE_CHUNKIDS" ]] ; then
     echo "Concatenating DHS chunks"
-    cat "DHSs_${TYPE}"/* | sort-bed - > "${FILE_CHUNKIDS}"
+    cat "${workdir}/DHSs_${TYPE}"/* | sort-bed - > "${FILE_CHUNKIDS}"
   fi
   
   #### Generate label mapping
@@ -113,6 +117,6 @@ for TYPE in ${TYPES}; do
   fi
 
   echo "Load this track in the UCSC browser using the following:"
-  echo "track type=bigBed name=master_list_${NAME}_${TYPE} useScore=1 visibility=2 itemRgb='On' bigDataUrl=https://encode:collabor8@resources.altius.org/~meuleman/ML_tracks/${FILE_BIGBED}"
+  echo "track type=bigBed name=master_list_${NAME}_${TYPE} useScore=1 visibility=2 itemRgb='On' bigDataUrl=https://[username:password@URL]/${FILE_BIGBED}"
 
 done
