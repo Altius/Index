@@ -26,9 +26,9 @@ TYPES="all nonovl_any nonovl_core";
 for TYPE in ${TYPES}; do
   echo "$TYPE"
 
-  FILE_CHUNKIDS="masterlist_DHSs_${NAME}_${TYPE}_chunkIDs.txt";
+  FILE_CHUNKIDS="masterlist_DHSs_${NAME}_${TYPE}_chunkIDs.bed";
   FILE_INDEXIDS="masterlist_DHSs_${NAME}_${TYPE}_indexIDs.txt";
-  FILE_BED="masterlist_DHSs_${NAME}_${TYPE}.bed";
+  FILE_BED12="masterlist_DHSs_${NAME}_${TYPE}.bed12";
   FILE_BIGBED="masterlist_DHSs_${NAME}_${TYPE}.bb";
 
   ### Create final master list
@@ -54,10 +54,10 @@ for TYPE in ${TYPES}; do
   FILE_INDEXIDS=${FILE_CHUNKIDS}
 
   ### Create browser loadable BED12 files
-  if ! [[ -f "$FILE_BED" ]] ; then
+  if ! [[ -f "$FILE_BED12" ]] ; then
     echo "Constructing BED12 file"
-    #echo "browser position chr6:26020208-26022677" > ${FILE_BED}
-    #echo "track name='Master list DHSs ${NAME} ${TYPE}' description='Master list DHSs ${NAME} ${TYPE}' visibility=2 useScore=1" >> ${FILE_BED}
+    #echo "browser position chr6:26020208-26022677" > ${FILE_BED12}
+    #echo "track name='Master list DHSs ${NAME} ${TYPE}' description='Master list DHSs ${NAME} ${TYPE}' visibility=2 useScore=1" >> ${FILE_BED12}
     awk '
     function round(x) { if(x=="NA") { return 0 } else { return int(x + 0.5) } }
     BEGIN { OFS="\t"; }
@@ -107,13 +107,13 @@ for TYPE in ${TYPES}; do
       score=round(log($5+1)/log(10)*500)
       score=(score > 1000 ? 1000 : score)
       print $1, $2, $3, $4, score, ".", thickStart, thickEnd, "0,0,0", blockCount, blockSizes, blockStarts
-    }' "${FILE_INDEXIDS}" > "${FILE_BED}"
+    }' "${FILE_INDEXIDS}" > "${FILE_BED12}"
   fi
 
   if ! [[ -f "$FILE_BIGBED" ]] ; then
     echo "Converting BED file to BIGBED file"
-    #bedToBigBed -type=bed12 "${FILE_BED}" "$CHROM_FILE" "${FILE_BIGBED}"
-    bedToBigBed -type=bed12 "${FILE_BED}" <(cut -f1,3 "$CHROM_FILE") "${FILE_BIGBED}"
+    #bedToBigBed -type=bed12 "${FILE_BED12}" "$CHROM_FILE" "${FILE_BIGBED}"
+    bedToBigBed -type=bed12 "${FILE_BED12}" <(cut -f1,3 "$CHROM_FILE") "${FILE_BIGBED}"
   fi
 
   echo "Load this track in the UCSC browser using the following:"

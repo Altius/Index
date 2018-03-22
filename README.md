@@ -3,13 +3,13 @@ Method for generating a master list / Index of DNaseI hypersensitivity sites.
 All code, implementation details and design by Wouter Meuleman and Eric Rynes. Docker implementation by Jemma Nelson.
 
 ## How to run within Docker:
-This approach is not recommended, as it will execute command serially, which will take an enormous amount of time for any real-life dataset.
+This approach is not recommended, because it will process biosamples serially, which will take an enormous amount of time for any real-life dataset.
 
 1. Build the docker image from this repo, with `docker build . --tag=masterlist`
 2. Change to the directory that contains your input files
 3. Run `docker run --mount type=bind,source="$(pwd)",target=/data masterlist run_sequential.sh my_output_dir chrom_sizes.bed listOfFiles.txt`
 
-`my_output_dir` will be created inside of the working directory. `chrom_sizes.bed` is a standard bed file containing the sizes of the chromosomes. `listOfFiles.txt` is a list of peak files (which are `starch`-formatted), containing one peak file per line. A relative path should be used to a file inside the working directory - absolute paths are not supported, due to the way the files are mounted in the Docker container.
+`my_output_dir` will be created inside the working directory. `chrom_sizes.bed` is a standard bed file containing the sizes of the chromosomes. `listOfFiles.txt` is a list of peak files (which are `starch`-formatted), containing one peak file per line. A relative path should be used to a file inside the working directory - absolute paths are not supported, due to the way the files are mounted in the Docker container.
 
 ## How to run with SLURM:
 
@@ -66,6 +66,40 @@ must have to be reported (default = 20); and a unique identifier (ID) for the bi
 The ID will be written into column 4 of every line of the peaks file, and used to define DHSs in the Index and to identify
 which biological samples contribute to each entry in the Index; it may contain underscores if desired.
 
+## Output
+
+TODO:  Wouter add explanations of the output files (`_all_chunkIDs.bed`, `_nonovl_any_chunkIDs.bed`, and `_nonovl_core_chunkIDs.bed`)
+
+For each of these 3 files, a 12-column version (`.bed12`) and bigBed version (`.bb`) are also created.
+The latter can be viewed in the UCSC Genome Browser; instructions for doing so are provided in the browser documentation.
+A (sub)directory will filled with messages and intermediate files; it will be created if it doesn't already exist.
+If any output files are incomplete or are not created, check the `errorMessages` and `R_Messages`
+subdirectories of the output directory for error messages that can help identify the underlying cause.
+
+## Example using provided data
+
+In subdirectory `data` of this repository, we provide variable-width peak files for 3 biological samples,
+and a text file containing their names (`fileOf3PeakFiles.txt`).  These files can be used to produce an example Index.
+We also provide file `chromSizes.hg38.bed3`, which contains chromosome lengths in hg38 coordinates, in this subdirectory.
+
+To create the example Index using SLURM:
+* `cd` into `data`
+* execute: `../ML_build_slurm.sh mySubdir MyResults chromSizes.hg38.bed3 fileOf3PeakFiles.txt <your computing cluster name> 100M`
+
+To create the example Index using Docker:
+* (build the Docker image, as instructed above in section "How to run within Docker")
+* `cd` into `data`
+* execute: `docker run --mount type=bind,source="$(pwd)",target=/data masterlist run_sequential.sh mySubdir chromSizes.hg38.bed3 fileOf3PeakFiles.txt MyResults`
+
+Either approach will create the following 3 files, each containing a "flavor" of an Index as described in section "Output," in directory `data`:
+* `masterlist_DHSs_MyResults_all_chunkIDs.bed`: an Index in which a small percentage of the DHSs overlap one another
+* `masterlist_DHSs_MyResults_nonovl_any_chunkIDs.bed`: same as previous, but with overlaps removed
+* `masterlist_DHSs_MyResults_nonovl_core_chunkIDs.bed`: same as previous, but restricted to "core" DHSs (see section "Output")
+For each of these 3 files, a 12-column version (`.bed12`) and bigBed version (`.bb`) are also created.
+The latter can be viewed in the UCSC Genome Browser; instructions for doing so are provided in the browser documentation.
+Subdirectory `mySubdir` will also be created, and filled with subdirectories and many intermediate files.
+If any "masterlist" files are incomplete or are not created, check the `errorMessages` and `R_Messages`
+subdirectories of `mySubdir` for error messages that can help identify the underlying cause.
 
 ## Files of interest:
 
@@ -77,7 +111,5 @@ which biological samples contribute to each entry in the Index; it may contain u
 | `code_overlap.R` | code used to detect and resolve overlapping elements, if so desired |
 | `code_gen_masterlist.sh` | code used to concatenate the output of all chunks and generate browser tracks |
 | `ML_build_slurm.sh` | SLURM submission script which executes each of the above in sequence |
-
-
-
+| `run_sequential.sh` | Script for executing each of the above in sequence using Docker | 
 
