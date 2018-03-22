@@ -95,6 +95,7 @@ Either approach will create the following 3 files, each containing a "flavor" of
 * `masterlist_DHSs_MyResults_all_chunkIDs.bed`: an Index in which a small percentage of the DHSs overlap one another
 * `masterlist_DHSs_MyResults_nonovl_any_chunkIDs.bed`: same as previous, but with overlaps removed
 * `masterlist_DHSs_MyResults_nonovl_core_chunkIDs.bed`: same as previous, but restricted to "core" DHSs (see section "Output")
+
 For each of these 3 files, a 12-column version (`.bed12`) and bigBed version (`.bb`) are also created.
 The latter can be viewed in the UCSC Genome Browser; instructions for doing so are provided in the browser documentation.
 Subdirectory `mySubdir` will also be created, and filled with subdirectories and many intermediate files.
