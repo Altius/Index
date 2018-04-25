@@ -1,6 +1,7 @@
 Method for generating a master list / Index of DNaseI hypersensitivity sites.
 
-All code, implementation details and design by Wouter Meuleman and Eric Rynes. Docker implementation by Jemma Nelson.
+All code, implementation details and design by Wouter Meuleman and Eric Rynes. 
+Docker implementation by Jemma Nelson.
 
 ## How to run within Docker:
 This approach is not recommended, because it will process biosamples serially, which will take an enormous amount of time for any real-life dataset.
@@ -68,7 +69,10 @@ which biological samples contribute to each entry in the Index; it may contain u
 
 ## Output
 
-TODO:  Wouter add explanations of the output files (`_all_chunkIDs.bed`, `_nonovl_any_chunkIDs.bed`, and `_nonovl_core_chunkIDs.bed`)
+As a basis, we generate a full set of DHSs that may contain partially overlapping elements (`_all_chunkIDs.bed`).
+This is the version we recommend to use for downstream annotations and analyses.
+However, as an alternative, we also provide two additional versions in which overlaps were either 
+resolved fully (`_nonovl_any_chunkIDs.bed`), or partially only for the central "peak summit zones" (`_nonovl_core_chunkIDs.bed`).
 
 For each of these 3 files, a 12-column version (`.bed12`) and bigBed version (`.bb`) are also created.
 The latter can be viewed in the UCSC Genome Browser; instructions for doing so are provided in the browser documentation.
