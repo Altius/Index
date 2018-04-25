@@ -28,12 +28,18 @@ if [[ $# != 6 ]]; then
 fi
 
 SOURCE_DIR=`realpath $0 | awk '{len=split($1,x,"/");printf("/%s",x[2]);for(i=3;i<len;i++){printf("/%s",x[i])}printf("\n")}'`
+export SOURCE_DIR
 OUTDIR=$1
 OUTPUT_VERSION_ID="$2"
+export OUTPUT_VERSION_ID
 CHROM_SIZES=$3
+export CHROM_SIZES
 PEAKFILES=$4
+export PEAKFILES
 PARTITION=$5
+export PARTITION
 memSize=$6
+export memSize
 
 if [ ! -s $CHROM_SIZES ]; then
     echo -e "Error:  File $CHROM_SIZES was not found, or it is empty."
@@ -45,21 +51,25 @@ if [ ! -s $PEAKFILES ]; then
 fi
 
 R_BUILD_SCRIPT=${SOURCE_DIR}/code_build.R
+export R_BUILD_SCRIPT
 if [ ! -s "$R_BUILD_SCRIPT" ]; then
     echo -e "Error:  Required file $R_BUILD_SCRIPT was not found, or it is empty."
     exit 2
 fi
 R_OVERLAP_SCRIPT=${SOURCE_DIR}/code_overlap.R
+export R_OVERLAP_SCRIPT
 if [ ! -s "$R_OVERLAP_SCRIPT" ]; then
     echo -e "Error:  Required file $R_OVERLAP_SCRIPT was not found, or it is empty."
     exit 2
 fi
 GEN_ML_SCRIPT=${SOURCE_DIR}/code_gen_masterlist.sh
+export GEN_ML_SCRIPT
 if [ ! -s "$GEN_ML_SCRIPT" ]; then
     echo -e "Error:  Required file $GEN_ML_SCRIPT was not found, or it is empty."
     exit 2
 fi
 CHUNK_SCRIPT=${SOURCE_DIR}/chunk_bed.awk
+export CHUNK_SCRIPT
 if [ ! -s "$CHUNK_SCRIPT" ]; then
     echo -e "Error:  Required file $CHUNK_SCRIPT was not found, or it is empty."
     exit 2
@@ -71,9 +81,13 @@ if [ $? != "0" ]; then
     usage
 fi
 OUTDIR=`realpath $OUTDIR`
+export OUTDIR
 STDERR_DIR=${OUTDIR}/errorMessages
+export STDERR_DIR
 STDOUT_DIR=${OUTDIR}/outputMessages
+export STDOUT_DIR
 ROUT_DIR=${OUTDIR}/R_Messages
+export ROUT_DIR
 mkdir -p $STDERR_DIR
 if [ $? != "0" ]; then
     echo -e "Error:  Failed to create directory $STDERR_DIR for general messages sent to stderr."
@@ -93,11 +107,12 @@ fi
 # Collate the peak files and "chunk" them into genomic "islands" that can be processed in parallel.
 COLLATED_INPUT=`pwd`
 COLLATED_INPUT="${COLLATED_INPUT}/allPeaks.bed"
+export COLLATED_INPUT
 jobName=CollateAndChunk
-jobID=$(sbatch --parsable --partition=$PARTITION --export=ALL --job-name=$jobName --output=${STDOUT_DIR}/${jobName}.o%j --error=${STDERR_DIR}/${jobName}.e%j --mem=$memSize <<EOF
+jobID1=$(sbatch --parsable --partition=$PARTITION --export=ALL --job-name=$jobName --output=${STDOUT_DIR}/${jobName}.o%j --error=${STDERR_DIR}/${jobName}.e%j --mem=$memSize <<EOF1
 #! /bin/bash
    module load bedops
-   if [ \`which bedops 2>/dev/null\` == "" ]; then
+   if ! which bedops >/dev/null 2>/dev/null ; then
       echo -e "Error:  bedops must be available on computing cluster $PARTITION; it was not found."
       exit 2
    fi
@@ -118,68 +133,65 @@ jobID=$(sbatch --parsable --partition=$PARTITION --export=ALL --job-name=$jobNam
    else
       rm -f $COLLATED_INPUT
    fi
-EOF
+EOF1
      )
 
-dependency="afterok:${jobID}"
+dependency2="afterok:${jobID1}"
 
-# Build the Index from the "chunk files."  This version of the Index will contain overlapping elements.
-jobName="ML_build.%a"
-jobID=$(sbatch --parsable --partition=$PARTITION --dependency=$dependency --export=ALL --job-name=$jobName -n 1 --array=1-5000 --output=${STDOUT_DIR}/${jobName}.o%j --error=${STDERR_DIR}/${jobName}.e%j --mem=$memSize <<EOF
+jobName="ProcessChunks"
+jobID2=$(sbatch --parsable --dependency=$dependency2 --partition=$PARTITION --export=ALL --job-name=$jobName --output=${STDOUT_DIR}/${jobName}.o%j --error=${STDERR_DIR}/${jobName}.e%j --mem=$memSize <<"EOF2"
 #! /bin/bash
-   module load R/3.3.3
-   if [ \`which R 2>/dev/null\` == "" ]; then
-      echo -e "Error:  R must be available on computing cluster $PARTITION; it was not found."
-      exit 2
-   fi
-   echo -e "Building the initial Index..."
-   R CMD BATCH --no-save --no-restore "--args chunknum=\${SLURM_ARRAY_TASK_ID} filepath='${OUTDIR}' workdir='${OUTDIR}' sourcedir='${SOURCE_DIR}'" \
-      $R_BUILD_SCRIPT $ROUT_DIR/output_build_chunk_\${SLURM_ARRAY_TASK_ID}.Rout
-   exit 0
-EOF
-     )
-
-dependency="afterok:${jobID}"
-
-# Build a version of the Index that does not contain overlapping elements.
-jobName="ML_overlap.%a"
-jobID=$(sbatch --parsable --partition=$PARTITION --dependency=$dependency --export=ALL --job-name=$jobName -n 1 --array=1-5000 --output=${STDOUT_DIR}/${jobName}.o%j --error=${STDERR_DIR}/${jobName}.e%j --mem=$memSize <<EOF
+   numJobs=`ls -1 ${OUTDIR}/chunk*bed | wc -l`
+   jobName3a="ML_build.%a"
+   jobID3a=$(sbatch --parsable --partition=$PARTITION --export=ALL --job-name=${jobName3a} -n 1 --array=1-$numJobs --output=${STDOUT_DIR}/${jobName3a}.o%j --error=${STDERR_DIR}/${jobName3a}.e%j --mem=$memSize <<"EOF3a"
 #! /bin/bash
-   module load R/3.3.3
-   if [ \`which R 2>/dev/null\` == "" ]; then
-      echo -e "Error:  R must be available on computing cluster $PARTITION; it was not found."
-      exit 2
-   fi
-   echo -e "Resolving overlaps in the initial Index..."
-   R CMD BATCH --no-save --no-restore "--args chunknum=\${SLURM_ARRAY_TASK_ID} workdir='${OUTDIR}' sourcedir='${SOURCE_DIR}'" \
-      $R_OVERLAP_SCRIPT $ROUT_DIR/output_overlap_chunk_\${SLURM_ARRAY_TASK_ID}.Rout
-   exit 0
-EOF
-     )
-
-dependency="afterok:${jobID}"
-
-# Create the final versions of the Index, including browser-loadable versions (bigBed format).
-jobName=Finishing
-jobID=$(sbatch --parsable --partition=$PARTITION --dependency=$dependency --export=ALL --job-name=$jobName --output=${STDOUT_DIR}/${jobName}.o%j --error=${STDERR_DIR}/${jobName}.e%j --mem=$memSize <<EOF
+      module load R/3.3.3
+      if ! which R >/dev/null 2>/dev/null ; then
+         echo -e "Error:  R must be available on computing cluster $PARTITION; it was not found."
+         exit 2
+      fi
+      echo -e "Building the initial Index..."
+      R CMD BATCH --no-save --no-restore "--args chunknum=${SLURM_ARRAY_TASK_ID} filepath='${OUTDIR}' workdir='${OUTDIR}' sourcedir='${SOURCE_DIR}'" \
+         $R_BUILD_SCRIPT $ROUT_DIR/output_build_chunk_${SLURM_ARRAY_TASK_ID}.Rout
+EOF3a
+      )
+   dependency3b="afterok:${jobID3a}"
+   jobName3b="ML_overlap.%a"
+   jobID3b=$(sbatch --parsable --partition=$PARTITION --dependency=$dependency3b --export=ALL --job-name=${jobName3b} -n 1 --array=1-$numJobs --output=${STDOUT_DIR}/${jobName3b}.o%j --error=${STDERR_DIR}/${jobName3b}.e%j --mem=$memSize <<"EOF3b"
 #! /bin/bash
-   module load bedops
-   if [ \`which bedops 2>/dev/null\` == "" ]; then
-      echo -e "Error:  bedops must be available on computing cluster $PARTITION; it was not found."
-      exit 2
-   fi
-   module load kentutil
-   if [ \`which bedToBigBed 2>/dev/null\` == "" ]; then
-      echo -e "Error:  bedToBigBed must be available on computing cluster $PARTITION; it was not found."
-      exit 2
-   fi
-   echo -e "Creating the final Index files..."
-   $GEN_ML_SCRIPT $OUTPUT_VERSION_ID $CHROM_SIZES $OUTDIR
-   if [ \$? != "0" ]; then
-      echo -e "An error occurred while executing $GEN_ML_SCRIPT."
-      exit 2
-   fi
-EOF
-     )
+      module load R/3.3.3
+      if ! which R >/dev/null 2>/dev/null ; then
+         echo -e "Error:  R must be available on computing cluster $PARTITION; it was not found."
+         exit 2
+      fi
+      echo -e "Resolving overlaps in the initial Index..."
+      R CMD BATCH --no-save --no-restore "--args chunknum=${SLURM_ARRAY_TASK_ID} workdir='${OUTDIR}' sourcedir='${SOURCE_DIR}'" \
+         $R_OVERLAP_SCRIPT $ROUT_DIR/output_overlap_chunk_${SLURM_ARRAY_TASK_ID}.Rout
+EOF3b
+      )
+   dependency3c="afterok:${jobID3b}"
+   jobName3c=Finishing
+   jobID3c=$(sbatch --parsable --partition=$PARTITION --dependency=$dependency3c --export=ALL --job-name=${jobName3c} --output=${STDOUT_DIR}/${jobName3c}.o%j --error=${STDERR_DIR}/${jobName3c}.e%j --mem=$memSize <<"EOF3c"
+#! /bin/bash
+      module load bedops
+      if ! which bedops >/dev/null 2>/dev/null ; then
+         echo -e "Error:  bedops must be available on computing cluster $PARTITION; it was not found."
+         exit 2
+      fi
+      module load kentutil
+      if ! which bedToBigBed >/dev/null 2>/dev/null ; then
+         echo -e "Error:  bedToBigBed must be available on computing cluster $PARTITION; it was not found."
+         exit 2
+      fi
+      echo -e "Creating the final Index files..."
+      $GEN_ML_SCRIPT $OUTPUT_VERSION_ID $CHROM_SIZES $OUTDIR
+      if [ $? != "0" ]; then
+         echo -e "An error occurred while executing $GEN_ML_SCRIPT."
+         exit 2
+      fi
+EOF3c
+      )
+EOF2
+      )
 
 exit 0
