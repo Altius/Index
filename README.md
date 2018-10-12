@@ -1,4 +1,4 @@
-Method for generating a master list / Index of DNaseI hypersensitivity sites.
+Method for generating a master list / Index of DNaseI-Hypersensitive Sites ("consensus DHSs").
 
 All code, implementation details and design by Wouter Meuleman and Eric Rynes. 
 Docker implementation by Jemma Nelson.
