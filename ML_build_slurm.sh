@@ -105,8 +105,7 @@ if [ $? != "0" ]; then
 fi
 
 # Collate the peak files and "chunk" them into genomic "islands" that can be processed in parallel.
-COLLATED_INPUT=`pwd`
-COLLATED_INPUT="${COLLATED_INPUT}/allPeaks.bed"
+COLLATED_INPUT="${OUTDIR}/allPeaks.bed"
 export COLLATED_INPUT
 jobName=CollateAndChunk
 jobID1=$(sbatch --parsable --partition=$PARTITION --export=ALL --job-name=$jobName --output=${STDOUT_DIR}/${jobName}.o%j --error=${STDERR_DIR}/${jobName}.e%j --mem=$memSize <<EOF1
