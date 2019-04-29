@@ -74,6 +74,20 @@ This is the version we recommend to use for downstream annotations and analyses.
 However, as an alternative, we also provide two additional versions in which overlaps were either 
 resolved fully (`_nonovl_any_chunkIDs.bed`), or partially only for the central "peak summit zones" (`_nonovl_core_chunkIDs.bed`).
 
+The columns in these files contain the following information:
+
+* column 1: chromosome name
+* column 2: start coordinate of the element (a.k.a. DHS); all coordinates are 0-based
+* column 3: end coordinate
+* column 4: DHS name/identifier
+* column 5: sum of normalized densities at the summit of the DHS
+* column 6: number of samples that contributed a peak to the DHS
+* column 7: number of distinct peaks that contributed to the DHS (col7 usually equals col6, but sometimes multiple nearby peaks within one sample contribute to the delineation of the DHS)
+* column 8: width of the DHS (equals col3 minus col2)
+* column 9: coordinate of the summit of the DHS
+* column 10: left boundary of the "core" of the DHS (summit coordinate minus dispersion; dispersion = median absolute deviation)
+* column 11: right boundary of the "core" of the DHS (summit plus dispersion)
+
 For each of these 3 files, a 12-column version (`.bed12`) and bigBed version (`.bb`) are also created.
 The latter can be viewed in the UCSC Genome Browser; instructions for doing so are provided in the browser documentation.
 A (sub)directory will filled with messages and intermediate files; it will be created if it doesn't already exist.
