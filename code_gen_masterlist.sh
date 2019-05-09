@@ -34,7 +34,7 @@ for TYPE in ${TYPES}; do
   ### Create final master list
   if ! [[ -f "$FILE_CHUNKIDS" ]] ; then
     echo "Concatenating DHS chunks"
-    cat "${workdir}/DHSs_${TYPE}"/* | sort-bed - > "${FILE_CHUNKIDS}"
+    find "${workdir}/DHSs_${TYPE}" -type f -name "*.bed" -print0 | xargs -0 cat | sort-bed - > "${FILE_CHUNKIDS}" # was: cat "${workdir}/DHSs_${TYPE}"/* | sort-bed - > "${FILE_CHUNKIDS}"
   fi
   
   #### Generate label mapping
